@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-cache"><title>SDCC大礼包个税计算器</title>
+<style>body{font-family:-apple-system,"PingFang SC",sans-serif;margin:0;background:#f3f5f9;color:#222}.w{max-width:520px;margin:auto;padding:16px}h1{font-size:20px}.c{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px #0001}label{display:block;font-size:14px;margin:8px 0 4px}input{font-size:16px;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:8px;-webkit-user-select:text;user-select:text}button{font-size:16px;width:100%;padding:12px;margin-top:12px;background:#c62828;color:#fff;border:0;border-radius:8px}.r{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #eee}.r b{color:#c62828}.err{color:#c62828}table{width:100%;border-collapse:collapse;font-size:13px}td,th{border:1px solid #ddd;padding:5px;text-align:center}tr.hl{background:#ffe0b2;font-weight:bold}.f{font-size:13px;background:#fafafa;padding:8px;border-radius:6px;word-break:break-all}small{color:#666;line-height:1.6}</style></head><body><div class="w">
+<h1>SDCC大礼包个税计算器</h1>
+<div class="c"><label>补偿金总额（元）</label><input id="a" type="text" inputmode="decimal" placeholder="例如 600000">
+<label>免税额（元，3倍上海社平工资）</label><input id="e" type="text" inputmode="decimal" value="452772">
+<button id="b">计算</button><div id="m" class="err"></div></div>
+<div class="c" id="o"></div>
+<div class="c"><b>综合所得年度税率表</b><table id="t"><tr><th>级数</th><th>应纳税所得额</th><th>税率</th><th>速算扣除数</th></tr></table></div>
+<div class="c"><small style="white-space:pre-wrap">QUG亲爱的同事们，这笔大礼包，是给过往辛劳的尾注，也是启动新生活的筹码。妥善使用，千万别盲目投资挥霍；从此风轻云云淡，好好开启下一段的人生路程            --BBG。</small></div></div>
+<script>
+var T=[[36000,.03,0],[144000,.1,2520],[300000,.2,16920],[420000,.25,31920],[660000,.3,52920],[960000,.35,85920],[Infinity,.45,181920]];
+var L=["不超过36,000","36,000–144,000","144,000–300,000","300,000–420,000","420,000–660,000","660,000–960,000","超过960,000"];
+function f(n){return n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function p(s){s=String(s).replace(/[,，\s元]/g,"");if(!/^\d+(\.\d+)?$/.test(s))return NaN;return parseFloat(s)}
+function tbl(h){var t=document.getElementById("t");t.innerHTML='<tr><th>级数</th><th>应纳税所得额(元)</th><th>税率</th><th>速算扣除数</th></tr>';T.forEach(function(r,i){t.innerHTML+='<tr'+(i===h?' class="hl"':'')+'><td>'+(i+1)+'</td><td>'+L[i]+'</td><td>'+r[1]*100+'%</td><td>'+r[2].toLocaleString()+'</td></tr>'})}
+function calc(a,e){var x=Math.max(0,a-e),i=-1,tax=0,r=[0,0,0];if(x>0){i=T.findIndex(function(q){return x<=q[0]});r=T[i];tax=Math.round((x*r[1]-r[2])*100)/100}return{ex:Math.min(a,e),x:x,i:i,rate:r[1],q:r[2],tax:tax,net:a-tax,eff:a>0?tax/a:0}}
+function run(){var m=document.getElementById("m"),o=document.getElementById("o");m.textContent="";o.innerHTML="";tbl(-1);var a=p(document.getElementById("a").value),e=p(document.getElementById("e").value);
+if(isNaN(a)){m.textContent="请输入有效的补偿金金额（非负数字）";return}if(isNaN(e)){m.textContent="请输入有效的免税额（非负数字）";return}
+var R=calc(a,e);tbl(R.i);function row(k,v,b){return '<div class="r"><span>'+k+'</span>'+(b?'<b>'+v+'</b>':'<span>'+v+'</span>')+'</div>'}
+var fl=R.x>0?('应税部分 = '+f(a)+' − '+f(e)+' = '+f(R.x)+'<br>应纳税额 = '+f(R.x)+' × '+R.rate*100+'% − '+f(R.q)+' = '+f(R.tax)):'补偿金未超过免税额，无需缴税（应纳税额 0）';
+o.innerHTML=row("免税部分",f(R.ex))+row("应税部分",f(R.x))+row("适用税率",R.i<0?"—":R.rate*100+"%")+row("速算扣除数",R.i<0?"—":f(R.q))+row("应纳税额",f(R.tax),1)+row("税后到手",f(R.net),1)+row("实际税负率",(R.eff*100).toFixed(2)+"%")+'<div class="f">'+fl+'</div>'}
+document.getElementById("b").addEventListener("click",run);["a","e"].forEach(function(id){document.getElementById(id).addEventListener("keydown",function(ev){if(ev.key==="Enter")run()})});tbl(-1);
+</script></body></html>
